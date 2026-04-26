@@ -2,7 +2,7 @@ import Moya
 internal import Alamofire
 
 enum API {
-    case getWeatherForecast(cityName: String, countryCode: String)
+    case getWeatherForecast(lat: Double, long: Double)
 }
 
 extension API: TargetType {
@@ -14,8 +14,8 @@ extension API: TargetType {
     
     var path: String {
         switch self {
-        case .getWeatherForecast(cityName: let cityName, countryCode: let countryCode):
-            return "appid=\(Constants.shared.appId)&units=\(Constants.shared.units)&q=\(cityName),\(countryCode)"
+        case .getWeatherForecast(lat: let lat, long: let long):
+            return "appid=\(Configs.openWeatherApiKey)&units=\(Constants.shared.units)&lat=\(lat)&lon=\(long)"
         }
     }
     
@@ -25,7 +25,7 @@ extension API: TargetType {
     
     var task: Task {
         switch self {
-        case .getWeatherForecast(cityName: let cityName, countryCode: let countryCode):
+        case .getWeatherForecast(lat: _, long: _):
             return .requestPlain
         }
     }

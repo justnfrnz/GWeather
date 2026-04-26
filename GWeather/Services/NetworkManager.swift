@@ -3,7 +3,7 @@ import RxSwift
 
 protocol Networkable {
     var provider: MoyaProvider<API> {get}
-    func fetchWeatherForecast(cityName: String, countryCode: String) -> Single<OpenWeatherModel>
+    func fetchWeatherForecast(lat: Double, long: Double) -> Single<OpenWeatherModel>
     
 }
 
@@ -13,8 +13,8 @@ class NetworkManager: Networkable {
         ApiErrorPlugin()
     ])
     
-    func fetchWeatherForecast(cityName: String, countryCode: String) -> Single<OpenWeatherModel> {
-        return request(target: .getWeatherForecast(cityName: cityName, countryCode: countryCode))
+    func fetchWeatherForecast(lat: Double, long: Double) -> Single<OpenWeatherModel> {
+        return request(target: .getWeatherForecast(lat: lat, long: long))
     }
 }
 

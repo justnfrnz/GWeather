@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		25DC8D7521C5D93BD2299A70 /* Pods_GWeatherTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCB3DF927E868F1822B4ED96 /* Pods_GWeatherTests.framework */; };
 		A7F72D65A4338ECD463AAE02 /* Pods_GWeather_GWeatherUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EEA9CCE6C9C9C752F0BDB917 /* Pods_GWeather_GWeatherUITests.framework */; };
-		D01493802F9E6006004666A0 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = D014937F2F9E5FFA004666A0 /* README.md */; };
 		D349B6AAF981F206E24437F0 /* Pods_GWeather.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F15FCC4060C9DF3D4EFC4CB4 /* Pods_GWeather.framework */; };
 /* End PBXBuildFile section */
 
@@ -37,7 +36,6 @@
 		9EAF8A3CBEB3EBC5F0A53B51 /* Pods-GWeather.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GWeather.release.xcconfig"; path = "Target Support Files/Pods-GWeather/Pods-GWeather.release.xcconfig"; sourceTree = "<group>"; };
 		BC03253004A9CFDAB16ADF7E /* Pods-GWeatherTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GWeatherTests.release.xcconfig"; path = "Target Support Files/Pods-GWeatherTests/Pods-GWeatherTests.release.xcconfig"; sourceTree = "<group>"; };
 		CCB3DF927E868F1822B4ED96 /* Pods_GWeatherTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GWeatherTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		D014937F2F9E5FFA004666A0 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = README.md; sourceTree = "<group>"; };
 		D04BD4262F9E0B1F00019144 /* GWeather.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GWeather.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D04BD4332F9E0B2200019144 /* GWeatherTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GWeatherTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D04BD43D2F9E0B2200019144 /* GWeatherUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GWeatherUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -118,7 +116,6 @@
 		D04BD41D2F9E0B1F00019144 = {
 			isa = PBXGroup;
 			children = (
-				D014937F2F9E5FFA004666A0 /* README.md */,
 				D04BD4282F9E0B1F00019144 /* GWeather */,
 				D04BD4362F9E0B2200019144 /* GWeatherTests */,
 				D04BD4402F9E0B2200019144 /* GWeatherUITests */,
@@ -392,7 +389,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D01493802F9E6006004666A0 /* README.md in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -557,14 +553,16 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 79UST6VZ77;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = GWeather;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.weather";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "GWeather needs your location to display local weather conditions and accurate forecasts for your current position.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "GWeather needs your location to display local weather conditions and accurate forecasts for your current position.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -592,14 +590,16 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 79UST6VZ77;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = GWeather;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.weather";
 				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "GWeather needs your location to display local weather conditions and accurate forecasts for your current position.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "GWeather needs your location to display local weather conditions and accurate forecasts for your current position.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
