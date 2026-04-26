@@ -1,7 +1,7 @@
 🔑 API Setup
 To run this project, you need an OpenWeather API Key:
-Open the Configs.swift file from Configs folder.
-Copy and paste the following code:
+Create a file named Configs.swift in the project root.
+Add the following code:
 
 import Foundation
 
