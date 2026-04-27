@@ -6,7 +6,7 @@ struct CurrentWeatherView: View {
     var body: some View {
         VStack(spacing: 8) {
             Text("\(viewModel.uiCityName), \(viewModel.uiCountryName)")
-                .font(.largeTitle)
+                .font(.title)
                 .fontWeight(.bold)
                 .multilineTextAlignment(.center)
             
@@ -31,6 +31,6 @@ struct CurrentWeatherView: View {
             .padding(.top, 20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity) // Fill the screen
-        .background(Color(hue: 0.656, saturation: 0.787, brightness: 0.354))
+        .background(Color(red: 28/255, green: 28/255, blue: 84/255).ignoresSafeArea())
     }
 }

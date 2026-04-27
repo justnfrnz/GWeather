@@ -1,7 +1,7 @@
 import SwiftUI
 import RxRelay
 
-struct LoginView: View {
+struct AuthView: View {
     @StateObject var viewModel = AuthViewModel()
     
     var body: some View {
@@ -65,8 +65,6 @@ struct LoginView: View {
             
             Button(action: {
                 viewModel.isRegisterMode.toggle()
-                //                viewModel.authError = nil
-                viewModel.errorRelay.accept("")
                 viewModel.emailErrorRelay.accept(nil)
                 viewModel.passwordErrorRelay.accept(nil) // Clear error when switching modes
             }) {
@@ -76,17 +74,13 @@ struct LoginView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(hue: 0.656, saturation: 0.787, brightness: 0.354).ignoresSafeArea())
+        .background(Color(red: 28/255, green: 28/255, blue: 84/255).ignoresSafeArea())
         
         if viewModel.showSuccessToast {
-            VStack {
-                Spacer()
-                ToastView(message: viewModel.toastMessage, isValid: viewModel.isValid)
-                    .padding(.bottom, 50)
-                    
-            }
-            .transition(.move(edge: .bottom).combined(with: .opacity))
-            .zIndex(1)
+            ToastView(message: viewModel.toastMessage, isValid: viewModel.isValid)
+                .padding(.bottom, 20)
+                .padding(.horizontal, 20)
+                .padding(.top, 10)
         }
     }
 }

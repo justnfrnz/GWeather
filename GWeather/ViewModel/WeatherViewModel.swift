@@ -33,8 +33,6 @@ class WeatherViewModel: NSObject, CLLocationManagerDelegate, ObservableObject {
     let isLoading = BehaviorRelay<Bool>(value: false)
     let error = PublishRelay<String>()
     
-    
-    
     // Current Weather Data (Tab 1)
     let cityName = BehaviorRelay<String>(value: "Unknown")
     let countryName = BehaviorRelay<String>(value: "--")
@@ -108,7 +106,7 @@ class WeatherViewModel: NSObject, CLLocationManagerDelegate, ObservableObject {
         // Get City Name via reverse Geocoding
         geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, _ in
             let city = placemarks?.first?.locality ?? "Uknown"
-            let country = placemarks?.first?.isoCountryCode ?? ""
+            guard let country = self?.getFullCountryName(from: placemarks?.first?.isoCountryCode ?? "PH") else {return}
             self?.cityName.accept(city)
             self?.countryName.accept(country)
         }
@@ -160,13 +158,6 @@ class WeatherViewModel: NSObject, CLLocationManagerDelegate, ObservableObject {
         networkManager.fetchWeatherForecast(lat: lat, long: long)
             .subscribe(onSuccess: { [weak self] model in
                 guard let self = self, let firstEntry = model.list?.first else { return }
-                print("Weather: \(model)")
-                
-                // Update City and Country info
-                //                let city = model.city?.name ?? "City Name"
-                //                let country = model.city?.country ?? "Country"
-                //                self.cityName.accept(city)
-                //                self.countryName.accept(country)
                 
                 // Update temperature (Celsius)
                 if let temp = firstEntry.main?.temp {
@@ -191,11 +182,6 @@ class WeatherViewModel: NSObject, CLLocationManagerDelegate, ObservableObject {
             }, onFailure: { [weak self] error in
                 self?.isLoading.accept(false)
                 
-                if let moyaError = error as? MoyaError,
-                   case let .objectMapping(decodingError, _) = moyaError {
-                    print("Decoding Error Detail: \(decodingError)") // THIS WILL TELL YOU THE EXACT FIELD
-                }
-                
                 if let serverError = error.asApiError {
                     print("Server message: \(serverError.message)")
                     self?.error.accept(serverError.message)
@@ -217,7 +203,10 @@ class WeatherViewModel: NSObject, CLLocationManagerDelegate, ObservableObject {
         return formatter.string(from: date)
     }
     
-    
+    private func getFullCountryName(from code: String) -> String {
+        let locale = Locale.current
+        return locale.localizedString(forRegionCode: code) ?? code
+    }
     
     private func determineIcon(condition: String) -> String {
         let hour = Calendar.current.component(.hour, from: Date())
@@ -229,7 +218,7 @@ class WeatherViewModel: NSObject, CLLocationManagerDelegate, ObservableObject {
         
         // Standard condition check
         switch condition.lowercased() {
-        case "rain": return "cloud.rain.fill"
+        case "rain","drizzle", "thunderstorm": return "cloud.rain.fill"
         case "clear": return "sun.max.fill"
         case "clouds": return "cloud.fill"
         default: return "sun.max.fill"

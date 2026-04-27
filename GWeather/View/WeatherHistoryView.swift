@@ -19,7 +19,7 @@ struct WeatherHistoryView: View {
                         .font(.title3)
                         .bold()
                 }
-                .padding(.vertical, 5)
+                .padding(.top, -10)
                 .contentShape(Rectangle()) // Makes the whole row clickable
                 .onTapGesture {
                     selectedWeather = item
@@ -27,9 +27,10 @@ struct WeatherHistoryView: View {
                 .listRowBackground(Color.white.opacity(0.1))
             }
             .navigationTitle("Weather History")
+            .navigationBarTitleDisplayMode(.inline)
             .listStyle(.plain)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(hue: 0.656, saturation: 0.787, brightness: 0.354))
+            .background(Color(red: 28/255, green: 28/255, blue: 84/255).ignoresSafeArea())
             // --- BOTTOM SHEET ---
             .sheet(item: $selectedWeather) { weather in
                 WeatherDetailSheet(item: weather)

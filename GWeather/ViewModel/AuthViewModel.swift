@@ -10,19 +10,12 @@ class AuthViewModel: ObservableObject {
     private let userDefaultsKey = "saved_users"
     private var cancellables = Set<AnyCancellable>()
     
-    let emailRelay = BehaviorRelay<String>(value: "")
-    let passwordRelay = BehaviorRelay<String>(value: "")
-    let errorRelay = BehaviorRelay<String>(value: "")
     let emailErrorRelay = BehaviorRelay<String?>(value: nil)
     let passwordErrorRelay = BehaviorRelay<String?>(value: nil)
     let isLoggedInRelay = BehaviorRelay<Bool>(value: UserDefaults.standard.bool(forKey: "is_logged_in"))
-    let showAlertRelay = BehaviorRelay<Bool>(value: false)
-    let authErrorRelay = BehaviorRelay<String?>(value: nil)
     
     @Published var email = ""
     @Published var password = ""
-    @Published var authError: String?
-    @Published var showAlert = false
     @Published var isLoggedIn = false
     @Published var emailError: String?
     @Published var passwordError: String?
@@ -39,20 +32,10 @@ class AuthViewModel: ObservableObject {
     private func setupBindings() {
         // Bind SwiftUI TextFields to Rx Relays
         $email
-            .sink { [weak self] value in
-                self?.emailRelay.accept(value)
-                // Automatically clear errors when user types in Email
-                self?.emailErrorRelay.accept(nil)
-                self?.authErrorRelay.accept(nil)
-            }
+            .sink { [weak self] _ in self?.emailErrorRelay.accept(nil)}
             .store(in: &cancellables)
         $password
-            .sink { [weak self] value in
-                self?.passwordRelay.accept(value)
-                // Automatically clear errors when user types in Password
-                self?.passwordErrorRelay.accept(nil)
-                self?.authErrorRelay.accept(nil)
-            }
+            .sink { [weak self] _ in self?.passwordErrorRelay.accept(nil)}
             .store(in: &cancellables)
         
         // Bind Rx Relays back to SwiftUI @Published for the View to update
@@ -60,13 +43,6 @@ class AuthViewModel: ObservableObject {
             .drive(onNext: { [weak self] in
                 self?.isLoggedIn = $0
                 UserDefaults.standard.set($0, forKey: "is_logged_in")
-            })
-            .disposed(by: disposebag)
-        
-        errorRelay.asDriver(onErrorJustReturn: "")
-            .drive(onNext: { [weak self] msg in
-                self?.authError = msg
-                self?.showAlert = !msg.isEmpty
             })
             .disposed(by: disposebag)
         
@@ -79,15 +55,6 @@ class AuthViewModel: ObservableObject {
             .asDriver(onErrorJustReturn: "")
             .drive(onNext: { [weak self] in self?.passwordError = $0 })
             .disposed(by: disposebag)
-        
-        showAlertRelay.asDriver()
-            .drive(onNext: { [weak self] in self?.showAlert = $0 })
-            .disposed(by: disposebag)
-        
-        authErrorRelay.asDriver()
-            .drive(onNext: { [weak self] in self?.authError = $0 })
-            .disposed(by: disposebag)
-        
     }
     func validateFields() -> Bool {
         emailErrorRelay.accept(nil)
@@ -147,12 +114,8 @@ class AuthViewModel: ObservableObject {
         
         let users = getSavedUsers()
         if let savedPassword = users[email], savedPassword == password {
-            authError = nil
-            showToast(message: "Welcome!", isValid: true)
             UIApplication.shared.endEditing()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                       self.isLoggedIn = true
-                   }
+            self.isLoggedIn = true
         } else {
             showToast(message: "Invalid email or password", isValid: false)
         }
@@ -170,8 +133,8 @@ class AuthViewModel: ObservableObject {
         withAnimation(.spring) { self.showSuccessToast = true }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-               withAnimation { self.showSuccessToast = false }
-           }
+            withAnimation { self.showSuccessToast = false }
+        }
     }
     
     private func getSavedUsers() -> [String: String] {

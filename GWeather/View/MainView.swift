@@ -7,17 +7,16 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct MainView: View {
     @StateObject var weatherViewModel = WeatherViewModel()
     @StateObject var authViewModel = AuthViewModel()
     
     var body: some View {
         Group {
             if !authViewModel.isLoggedIn {
-                LoginView(viewModel: authViewModel)
+                AuthView(viewModel: authViewModel)
             } else {
                 ZStack(alignment: .leading) {
-                    
                     // LAYER 1: Main App Content
                     VStack(spacing: 0) {
                         // Custom Header
@@ -46,7 +45,7 @@ struct ContentView: View {
                             }
                         }
                         .padding()
-                        .background(Color(hue: 0.656, saturation: 0.787, brightness: 0.354))
+                        .background(Color(red: 28/255, green: 28/255, blue: 84/255).ignoresSafeArea())
                         
                         TabView {
                             CurrentWeatherView(viewModel: weatherViewModel)
@@ -93,7 +92,7 @@ struct ContentView: View {
             }
         }
         .errorAlert(message: $weatherViewModel.uiErrorMessage)
-        .background(Color(hue: 0.656, saturation: 0.787, brightness: 0.354).ignoresSafeArea())
+        .background(Color(red: 28/255, green: 28/255, blue: 84/255).ignoresSafeArea())
         .preferredColorScheme(.dark)
     }
 }
