@@ -5,6 +5,6 @@ final class Constants {
     // Private init
     private init() {}
     
-    final let baseUrl: String = "api.openweathermap.org/data/2.5/forecast?"
+    final let baseUrl: String = "https://api.openweathermap.org"
     final let units: String = "metric"
 }

@@ -14,8 +14,8 @@ extension API: TargetType {
     
     var path: String {
         switch self {
-        case .getWeatherForecast(lat: let lat, long: let long):
-            return "appid=\(Configs.openWeatherApiKey)&units=\(Constants.shared.units)&lat=\(lat)&lon=\(long)"
+        case .getWeatherForecast(lat: _, long: _):
+            return "/data/2.5/forecast"
         }
     }
     
@@ -25,8 +25,10 @@ extension API: TargetType {
     
     var task: Task {
         switch self {
-        case .getWeatherForecast(lat: _, long: _):
-            return .requestPlain
+        case .getWeatherForecast(lat: let lat, long: let long):
+            return .requestParameters(
+                parameters: ["appid": Configs.openWeatherApiKey, "units":"metric", "lat": lat, "lon": long],
+                encoding: URLEncoding.queryString)
         }
     }
     

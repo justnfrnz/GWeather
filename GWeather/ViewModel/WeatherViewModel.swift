@@ -1,21 +1,39 @@
 import RxSwift
+import Moya
 import RxCocoa
 import CoreLocation
+import SwiftUI
+internal import Combine
 
-class WeatherViewModel: NSObject, CLLocationManagerDelegate {
+class WeatherViewModel: NSObject, CLLocationManagerDelegate, ObservableObject {
     private let networkManager = NetworkManager()
     private let disposeBag = DisposeBag()
     private let locationManager = CLLocationManager()
     private let geocoder = CLGeocoder()
     
+    // SwiftUI Observed Properties
+    @Published var uiCityName: String = "Loading..."
+    @Published var uiCountryName: String = ""
+    @Published var uiTemp: String = "--°C"
+    @Published var uiSunrise: String = "--:--"
+    @Published var uiSunset: String = "--:--"
+    @Published var uiIcon: String = "sun.max"
+    @Published var uiHistory: [List] = []
+    @Published var uiIsLoading: Bool = false
+    @Published var uiErrorMessage: String? = nil
+    
+    
     override init() {
         super.init()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+        setupSwiftUIBindings()
     }
     
     let isLoading = BehaviorRelay<Bool>(value: false)
     let error = PublishRelay<String>()
+    
+    
     
     // Current Weather Data (Tab 1)
     let cityName = BehaviorRelay<String>(value: "Unknown")
@@ -28,12 +46,64 @@ class WeatherViewModel: NSObject, CLLocationManagerDelegate {
     // History Data (Tab 2)
     let history = BehaviorRelay<[List]>(value:[])
     
+    private func setupSwiftUIBindings() {
+        // Map cityName Relay to uiCityName @Published
+        cityName.asDriver()
+            .drive(onNext: { [weak self] in self?.uiCityName = $0 })
+            .disposed(by: disposeBag)
+        
+        countryName.asDriver()
+            .drive(onNext: { [weak self] in self?.uiCountryName = $0 })
+            .disposed(by: disposeBag)
+        
+        // Map temperature Relay
+        temperature.asDriver()
+            .drive(onNext: { [weak self] in self?.uiTemp = $0 })
+            .disposed(by: disposeBag)
+        
+        // Map Icon
+        weatherIcon.asDriver()
+            .drive(onNext: { [weak self] in self?.uiIcon = $0 })
+            .disposed(by: disposeBag)
+        
+        // Map History (Tab 2)
+        history.asDriver()
+            .drive(onNext: { [weak self] in self?.uiHistory = $0 })
+            .disposed(by: disposeBag)
+        
+        // Map Loading State
+        isLoading.asDriver()
+            .drive(onNext: { [weak self] in self?.uiIsLoading = $0 })
+            .disposed(by: disposeBag)
+        
+        // Map Error (using Optional to clear it)
+        error.asDriver(onErrorJustReturn: "")
+            .drive(onNext: { [weak self] in self?.uiErrorMessage = $0 })
+            .disposed(by: disposeBag)
+        
+        // Map Sunrise
+        sunrise.asDriver()
+            .drive(onNext: { [weak self] in self?.uiSunrise = $0})
+            .disposed(by: disposeBag)
+        
+        // Map Sunset
+        sunset.asDriver()
+            .drive(onNext: { [weak self] in self?.uiSunset = $0})
+            .disposed(by: disposeBag)
+    }
+    
+    func requestLocation() {
+        isLoading.accept(true)
+        locationManager.requestLocation()
+        //        locationManager.requestWhenInUseAuthorization()
+        //        locationManager.startUpdatingLocation()
+    }
+    
     // Delegate method called when location is found
     // Success: Called when GPS find you
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation], didFailWithError error: Error) {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         locationManager.stopUpdatingLocation()
-        
         
         // Get City Name via reverse Geocoding
         geocoder.reverseGeocodeLocation(location) { [weak self] placemarks, _ in
@@ -91,10 +161,10 @@ class WeatherViewModel: NSObject, CLLocationManagerDelegate {
                 print("Weather: \(model)")
                 
                 // Update City and Country info
-//                let city = model.city?.name ?? "City Name"
-//                let country = model.city?.country ?? "Country"
-//                self.cityName.accept(city)
-//                self.countryName.accept(country)
+                //                let city = model.city?.name ?? "City Name"
+                //                let country = model.city?.country ?? "Country"
+                //                self.cityName.accept(city)
+                //                self.countryName.accept(country)
                 
                 // Update temperature (Celsius)
                 if let temp = firstEntry.main?.temp {
@@ -108,7 +178,7 @@ class WeatherViewModel: NSObject, CLLocationManagerDelegate {
                 }
                 
                 // Update Icon Logic (Night mode after 6PM)
-                let condition = firstEntry.weather?.first?.main?.rawValue ?? "Clouds"
+                let condition = firstEntry.weather?.first?.main ?? "Clouds"
                 let icon = self.determineIcon(condition: condition)
                 self.weatherIcon.accept(icon)
                 
@@ -118,6 +188,11 @@ class WeatherViewModel: NSObject, CLLocationManagerDelegate {
                 self.isLoading.accept(false)
             }, onFailure: { [weak self] error in
                 self?.isLoading.accept(false)
+                
+                if let moyaError = error as? MoyaError,
+                   case let .objectMapping(decodingError, _) = moyaError {
+                    print("Decoding Error Detail: \(decodingError)") // THIS WILL TELL YOU THE EXACT FIELD
+                }
                 
                 if let serverError = error.asApiError {
                     print("Server message: \(serverError.message)")
@@ -140,10 +215,7 @@ class WeatherViewModel: NSObject, CLLocationManagerDelegate {
         return formatter.string(from: date)
     }
     
-    func requestLocation() {
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
-    }
+    
     
     private func determineIcon(condition: String) -> String {
         let hour = Calendar.current.component(.hour, from: Date())
@@ -152,7 +224,14 @@ class WeatherViewModel: NSObject, CLLocationManagerDelegate {
         if (hour >= 18 || hour < 6) {
             return "moon.stars.fill"
         }
-        return condition == "Rain" ? "cloud.rain.fill" : "sun.max.fill"
+        
+        // Standard condition check
+        switch condition.lowercased() {
+        case "rain": return "cloud.rain.fill"
+        case "clear": return "sun.max.fill"
+        case "clouds": return "cloud.fill"
+        default: return "sun.max.fill"
+        }
     }
 }
 

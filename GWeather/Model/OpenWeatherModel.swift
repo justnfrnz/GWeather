@@ -88,23 +88,25 @@ enum Pod: String, Codable {
 // MARK: - Weather
 struct Weather: Codable {
     let id: Int?
-    let main: MainEnum?
-    let description: Description?
+    let main: String?
+    let description: String?
     let icon: String?
 }
 
-enum Description: String, Codable {
-    case brokenClouds = "broken clouds"
-    case fewClouds = "few clouds"
-    case lightRain = "light rain"
-    case overcastClouds = "overcast clouds"
-    case scatteredClouds = "scattered clouds"
-}
-
-enum MainEnum: String, Codable {
-    case clouds = "Clouds"
-    case rain = "Rain"
-}
+//enum Description: String, Codable {
+//    case brokenClouds = "broken clouds"
+//    case fewClouds = "few clouds"
+//    case lightRain = "light rain"
+//    case overcastClouds = "overcast clouds"
+//    case scatteredClouds = "scattered clouds"
+//}
+//
+//enum MainEnum: String, Codable {
+//    case clouds = "Clouds"
+//    case rain = "Rain"
+//    case clear = "Clear"
+//    case snow = "Snow"
+//}
 
 // MARK: - Wind
 struct Wind: Codable {
