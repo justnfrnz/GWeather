@@ -27,6 +27,10 @@ class AuthViewModel: ObservableObject {
     @Published var emailError: String?
     @Published var passwordError: String?
     @Published var isSideMenuOpen: Bool = false
+    @Published var showSuccessToast: Bool = false
+    @Published var isRegisterMode = false
+    @Published var toastMessage: String = ""
+    @Published var isValid = false
     
     init() {
         setupBindings()
@@ -35,10 +39,20 @@ class AuthViewModel: ObservableObject {
     private func setupBindings() {
         // Bind SwiftUI TextFields to Rx Relays
         $email
-            .sink { [weak self] in self?.emailRelay.accept($0)}
+            .sink { [weak self] value in
+                self?.emailRelay.accept(value)
+                // Automatically clear errors when user types in Email
+                self?.emailErrorRelay.accept(nil)
+                self?.authErrorRelay.accept(nil)
+            }
             .store(in: &cancellables)
         $password
-            .sink { [weak self] in self?.passwordRelay.accept($0)}
+            .sink { [weak self] value in
+                self?.passwordRelay.accept(value)
+                // Automatically clear errors when user types in Password
+                self?.passwordErrorRelay.accept(nil)
+                self?.authErrorRelay.accept(nil)
+            }
             .store(in: &cancellables)
         
         // Bind Rx Relays back to SwiftUI @Published for the View to update
@@ -75,7 +89,7 @@ class AuthViewModel: ObservableObject {
             .disposed(by: disposebag)
         
     }
-    private func validateFields() -> Bool {
+    func validateFields() -> Bool {
         emailErrorRelay.accept(nil)
         passwordErrorRelay.accept(nil)
         
@@ -84,7 +98,7 @@ class AuthViewModel: ObservableObject {
         if email.isEmpty {
             emailErrorRelay.accept("Email cannot be empty")
             isValid = false
-        } else if !email.contains("@"){
+        } else if !email.contains("@") {
             emailErrorRelay.accept("Invalid email format")
             isValid = false
         }
@@ -98,11 +112,11 @@ class AuthViewModel: ObservableObject {
         }
         
         if email.isEmpty || password.isEmpty {
-            showError("Fields cannot be empty.")
+            showToast(message: "Fields cannot be empty", isValid: false)
             return false
         }
         if !isValid {
-            showError("Please fix the errors above")
+            showToast(message: "Please fix errors above", isValid: false)
         }
         
         return isValid
@@ -114,15 +128,18 @@ class AuthViewModel: ObservableObject {
         
         let users = getSavedUsers()
         if users[email] != nil {
-            showError("User already exists!")
+            showToast(message: "User already exists!", isValid: false)
             return
         }
         
         var updatedUsers = users
         updatedUsers[email] = password
         saveUsers(updatedUsers)
-        showError("Registration Successful! Please Login.")
-        print("Updated user: \(email) \(password)")
+        
+        UIApplication.shared.endEditing()
+        
+        showToast(message: "Registration Successful!", isValid: true)
+        withAnimation(.spring) {self.isRegisterMode = false}
     }
     
     func loginAction() {
@@ -131,11 +148,13 @@ class AuthViewModel: ObservableObject {
         let users = getSavedUsers()
         if let savedPassword = users[email], savedPassword == password {
             authError = nil
-            isLoggedIn = true
+            showToast(message: "Welcome!", isValid: true)
+            UIApplication.shared.endEditing()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                       self.isLoggedIn = true
+                   }
         } else {
-            
-            showError("Invalid email or password.")
-            
+            showToast(message: "Invalid email or password", isValid: false)
         }
     }
     func logout() {
@@ -145,13 +164,14 @@ class AuthViewModel: ObservableObject {
         password = ""
     }
     
-    private func showError(_ message: String) {
-        errorRelay.accept(message)
-        DispatchQueue.main.async {
-            self.authError = message
-            self.showAlert = true
-        }
+    func showToast(message: String, isValid: Bool) {
+        self.toastMessage = message
+        self.isValid = isValid
+        withAnimation(.spring) { self.showSuccessToast = true }
         
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+               withAnimation { self.showSuccessToast = false }
+           }
     }
     
     private func getSavedUsers() -> [String: String] {
@@ -160,5 +180,12 @@ class AuthViewModel: ObservableObject {
     
     private func saveUsers(_ users: [String: String]) {
         UserDefaults.standard.set(users, forKey: userDefaultsKey)
+    }
+}
+
+
+extension UIApplication {
+    func endEditing() {
+        sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }

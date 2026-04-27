@@ -3,11 +3,10 @@ import RxRelay
 
 struct LoginView: View {
     @StateObject var viewModel = AuthViewModel()
-    @State private var isRegisterMode = false
     
     var body: some View {
         VStack(spacing: 30) {
-            Text(isRegisterMode ? "Create Account" : "Sign In")
+            Text(viewModel.isRegisterMode ? "Create Account" : "Sign In")
                 .font(.system(size: 32, weight: .heavy))
                 .foregroundColor(.white)
             
@@ -24,7 +23,7 @@ struct LoginView: View {
                                 .stroke(viewModel.emailError == nil ? Color.clear : Color.red, lineWidth: 2)
                         )
                     
-                    if let error = viewModel.emailError {
+                    if let error = viewModel.emailError  {
                         Text(error).foregroundColor(.red).font(.caption).padding(.leading, 5)
                     }
                 }
@@ -48,13 +47,13 @@ struct LoginView: View {
             .padding(.horizontal)
             
             Button(action: {
-                if isRegisterMode {
+                if viewModel.isRegisterMode {
                     viewModel.registerAction()
                 } else {
                     viewModel.loginAction()
                 }
             }) {
-                Text(isRegisterMode ? "REGISTER" : "LOGIN")
+                Text(viewModel.isRegisterMode ? "REGISTER" : "LOGIN")
                     .fontWeight(.bold)
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -63,35 +62,31 @@ struct LoginView: View {
                     .cornerRadius(10)
             }
             .padding(.horizontal)
-            .alert(isPresented: $viewModel.showAlert) {
-                Alert(
-                    title: Text(isRegisterMode ? "Registration" : "Login Status"),
-                    message: Text(viewModel.authError ?? "Unknown Error"),
-                    dismissButton: .default(Text("OK"))
-                )
-            }
             
             Button(action: {
-                isRegisterMode.toggle()
-//                viewModel.authError = nil
+                viewModel.isRegisterMode.toggle()
+                //                viewModel.authError = nil
                 viewModel.errorRelay.accept("")
                 viewModel.emailErrorRelay.accept(nil)
                 viewModel.passwordErrorRelay.accept(nil) // Clear error when switching modes
             }) {
-                Text(isRegisterMode ? "Already have an account? Sign In" : "Don't have an account? Register")
+                Text(viewModel.isRegisterMode ? "Already have an account? Sign In" : "Don't have an account? Register")
                     .font(.footnote)
                     .foregroundColor(.white.opacity(0.7))
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(hue: 0.656, saturation: 0.787, brightness: 0.354).ignoresSafeArea())
-        // Alert to show validation or auth errors
-        .alert(isPresented: $viewModel.showAlert) {
-            Alert(
-                title: Text(isRegisterMode ? "Registration" : "Login Status"),
-                message: Text(viewModel.authError ?? "Unknown Error"),
-                dismissButton: .default(Text("OK"))
-            )
+        
+        if viewModel.showSuccessToast {
+            VStack {
+                Spacer()
+                ToastView(message: viewModel.toastMessage, isValid: viewModel.isValid)
+                    .padding(.bottom, 50)
+                    
+            }
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+            .zIndex(1)
         }
     }
 }

@@ -35,7 +35,15 @@ struct ContentView: View {
                             Text("GWeather").fontWeight(.bold)
                             Spacer()
                             // Actual location button if you want it functional later
-                            Image(systemName: "location.fill").opacity(0.5)
+                            Button(action: {
+                                withAnimation(.spring()) {
+                                    weatherViewModel.requestLocation()
+                                }
+                            }) {
+                                Image(systemName: "location.fill")
+                                    .font(.title)
+                                    .foregroundColor(.white)
+                            }
                         }
                         .padding()
                         .background(Color(hue: 0.656, saturation: 0.787, brightness: 0.354))

@@ -30,7 +30,7 @@ struct WeatherHistoryView: View {
             .listStyle(.plain)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(hue: 0.656, saturation: 0.787, brightness: 0.354))
-            // --- THE BOTTOM SHEET ---
+            // --- BOTTOM SHEET ---
             .sheet(item: $selectedWeather) { weather in
                 WeatherDetailSheet(item: weather)
                     .ios15HalfSheet()

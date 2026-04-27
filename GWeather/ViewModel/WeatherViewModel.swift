@@ -114,7 +114,9 @@ class WeatherViewModel: NSObject, CLLocationManagerDelegate, ObservableObject {
         }
         
         // Fetch Weather using Lat/Long
-        fetchWeatherByCoordinates(lat: location.coordinate.latitude, long: location.coordinate.longitude)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            self.fetchWeatherByCoordinates(lat: location.coordinate.latitude, long: location.coordinate.longitude)
+        }
     }
     
     // Failure: Called when GPS fails
