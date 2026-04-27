@@ -196,19 +196,19 @@ class WeatherViewModel: NSObject, CLLocationManagerDelegate, ObservableObject {
     
     // MARK: Helpers
     
-    private func formatUnixTime(_ timestamp: Int) -> String {
+    func formatUnixTime(_ timestamp: Int) -> String {
         let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
         let formatter = DateFormatter()
         formatter.dateFormat = "h:mm a"
         return formatter.string(from: date)
     }
     
-    private func getFullCountryName(from code: String) -> String {
+    func getFullCountryName(from code: String) -> String {
         let locale = Locale.current
         return locale.localizedString(forRegionCode: code) ?? code
     }
     
-    private func determineIcon(condition: String) -> String {
+    func determineIcon(condition: String) -> String {
         let hour = Calendar.current.component(.hour, from: Date())
         
         // Requirement: Moon icon if past 6 PM (18:00) or before 6 AM

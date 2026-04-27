@@ -27,6 +27,11 @@ class AuthViewModel: ObservableObject {
     
     init() {
         setupBindings()
+        
+        // Used in GWeatherUITests
+        if CommandLine.arguments.contains("-resetState") {
+            UserDefaults.standard.set(false, forKey: "is_logged_in")
+        }
     }
     
     private func setupBindings() {
@@ -62,11 +67,15 @@ class AuthViewModel: ObservableObject {
         
         var isValid = true
         
+        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        let emailPredicate = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
+        let isEmailFormatValid = emailPredicate.evaluate(with: email)
+        
         if email.isEmpty {
             emailErrorRelay.accept("Email cannot be empty")
             isValid = false
-        } else if !email.contains("@") {
-            emailErrorRelay.accept("Invalid email format")
+        } else if !isEmailFormatValid {
+            emailErrorRelay.accept("Please enter a valid email format")
             isValid = false
         }
         

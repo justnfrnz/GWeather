@@ -8,36 +8,63 @@
 import XCTest
 
 final class GWeatherUITests: XCTestCase {
-
+    
+    let app = XCUIApplication()
+    
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
+        app.launchArguments += ["-resetState"]
         app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // XCUIAutomation Documentation
-        // https://developer.apple.com/documentation/xcuiautomation
     }
-
+    
     @MainActor
-    func testLaunchPerformance() throws {
-        // This measures how long it takes to launch your application.
-        measure(metrics: [XCTApplicationLaunchMetric()]) {
-            XCUIApplication().launch()
-        }
+    func testCompleteUserJourney() throws {
+        let registerToggle = app.buttons["Don't have an account? Register"]
+        XCTAssertTrue(registerToggle.waitForExistence(timeout: 5)) // Wait for Splash Screen to finish/
+        
+        // REGISTRATION PHASE
+        registerToggle.tap()
+        
+        let emailField = app.textFields["Email"]
+        let passwordField = app.secureTextFields["Password"]
+    
+        emailField.tap()
+        emailField.typeText("sampleTestUser@gmail.com")
+        
+        passwordField.tap()
+        passwordField.typeText("password123")
+        
+        app.buttons["REGISTER"].tap()
+        
+        emailField.tap()
+        emailField.tap(withNumberOfTaps: 3, numberOfTouches: 1) // Clear the previous field inputs
+        emailField.typeText("sampleTestUser@gmail.com")
+        
+        passwordField.tap()
+        passwordField.tap(withNumberOfTaps: 3, numberOfTouches: 1) // Clear the previous field inputs
+        passwordField.typeText("password123")
+        
+        app.buttons["LOGIN"].tap()
+        
+        // 4. VERIFY FINAL STATE
+        let tabBar = app.tabBars.firstMatch
+        XCTAssertTrue(tabBar.waitForExistence(timeout: 5), "Should be on the Weather screen now")
+    }
+    
+    @MainActor
+    func testRegistrationModeToogle() throws {
+        let registerToggle = app.buttons["Don't have an account? Register"]
+        XCTAssertTrue(registerToggle.waitForExistence(timeout: 5)) // Added Timeout because of the delay in SplashView
+        
+        // Switch to Register Mode
+        registerToggle.tap()
+        
+        // Verify Title Change
+        let registerTitle = app.staticTexts["Create Account"]
+        XCTAssertTrue(registerTitle.exists, "Header should change to Create Account")
+        
+        // Verify Button Change
+        let registerButton = app.buttons["REGISTER"]
+        XCTAssertTrue(registerButton.exists, "Button should now say REGISTER")
     }
 }
